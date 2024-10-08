@@ -1,0 +1,196 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import fsolve
+
+# Define parameters
+a = 0.5  # constant electric field parameter
+b = 1.0  # RF field amplitude
+t = 0  # specific time (you can vary this value to see time-dependent nullclines)
+
+# Create a grid for x and v
+x_vals = np.linspace(-2, 2, 400)
+v_vals = np.linspace(-2, 2, 400)
+X, V = np.meshgrid(x_vals, v_vals)
+
+# Nullcline conditions
+# x-nullcline: v = 0
+x_nullcline = np.zeros_like(x_vals)
+
+# v-nullcline: (b * cos(2t) - a) * x = 0
+# This gives either x = 0 or cos(2t) = a/b
+cos_term = np.cos(2 * t)
+v_nullcline = (b * cos_term - a) * X
+
+# Determine the fixed points:
+# Fixed points occur where both v = 0 and (b * cos(2t) - a) * x = 0
+fixed_points_x = []
+fixed_points_v = []
+
+# There is always a fixed point at (x, v) = (0, 0)
+fixed_points_x.append(0)
+fixed_points_v.append(0)
+
+# If cos(2t) = a/b, there are additional fixed points
+if cos_term != 0:
+    if b * cos_term == a:
+        # Fixed points exist for all x when cos(2t) = a/b, which happens at t = 0 for certain a and b
+        for x in x_vals:
+            fixed_points_x.append(x)
+            fixed_points_v.append(0)
+
+# Plotting the nullclines
+plt.figure(figsize=(8, 6))
+
+# Plot x-nullcline: v = 0
+plt.plot(x_vals, x_nullcline, label='x-nullcline: v = 0', color='blue')
+
+# Plot v-nullcline: (b * cos(2t) - a) * x = 0
+# At x = 0
+plt.axvline(0, color='red', linestyle='--', label='v-nullcline: x = 0')
+
+# Plot v-nullcline: b * cos(2t) = a at t = 0
+if cos_term != 0:  # Avoid division by zero when cos(2t) = 0
+    plt.contour(X, V, v_nullcline, levels=[0], colors='green')
+
+# Plot fixed points
+plt.plot(fixed_points_x, fixed_points_v, 'ko', markersize=10, label='Fixed Points')
+
+# Adding labels and titles
+plt.title('Nullclines and Fixed Points of the Quadrupolar Ion Trap System (t = 0)')
+plt.xlabel('x (Position)')
+plt.ylabel('v (Velocity)')
+plt.grid(False)
+plt.legend()
+
+plt.show()
+
+
+
+# Define parameters for the ion trap system
+a = 0.5  # constant electric field parameter
+b = 1.0  # RF field amplitude
+t = 0  # specific time (you can vary this value to see time-dependent behavior)
+
+# Create a grid of x and v values for the quiver and streamline plots
+x_vals = np.linspace(-2, 2, 20)
+v_vals = np.linspace(-2, 2, 20)
+X, V = np.meshgrid(x_vals, v_vals)
+
+# Define the vector field (dx/dt = v and dv/dt = (b * cos(2t) - a) * x)
+dxdt = V
+dvdt = (b * np.cos(2 * t) - a) * X
+
+# Generate a finer grid for streamline plotting
+x_fine = np.linspace(-2, 2, 100)
+v_fine = np.linspace(-2, 2, 100)
+X_fine, V_fine = np.meshgrid(x_fine, v_fine)
+
+# Define the finer vector field for streamlines
+dxdt_fine = V_fine
+dvdt_fine = (b * np.cos(2 * t) - a) * X_fine
+
+# Define time range for the sinusoidal plot
+time_vals = np.linspace(0, np.pi, 500)  # Half rotation corresponds to 0 to pi (for cos(2t))
+
+# Calculate the field strength (cos(2t)) over the time range
+field_strength = np.cos(2 * time_vals)
+
+# Create the figure with two subplots, adding a subtitle and text labels for 'a' and 'b'
+# Create the figure with two subplots side by side, adding a subtitle and text labels for 'a' and 'b'
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+
+# Add a subtitle
+fig.suptitle('Quadrupole Ion Trap Visualization', fontsize=16)
+
+# First subplot: Quiver and Streamline Plot
+# Create the quiver plot
+ax1.quiver(X, V, dxdt, dvdt, color='blue', label='Quiver')
+
+# Add a streamline plot
+ax1.streamplot(X_fine, V_fine, dxdt_fine, dvdt_fine, color='green', density=1.5, linewidth=1)
+
+# Mark the fixed point (0, 0)
+ax1.plot(0, 0, 'ro', markersize=10, label='Fixed Point (0, 0)')
+
+# Labels and title for the first plot
+ax1.set_title('Quiver and Streamline Plot of the Quadrupole Ion Trap System with Fixed Point')
+ax1.set_xlabel('x (Position)')
+ax1.set_ylabel('v (Velocity)')
+ax1.grid(False)
+
+# Add 'a' text underneath the first plot
+ax1.text(0.5, -0.1, 'a', transform=ax1.transAxes, fontsize=14, va='top', ha='center')
+
+# Second subplot: Sinusoidal wave showing evolution of field strength
+ax2.plot(time_vals, field_strength, label='Field Strength: cos(2t)', color='purple')
+
+# Labels and title for the second plot
+ax2.set_title('Evolution of Field Strength During Half Rotation')
+ax2.set_xlabel('Time (t)')
+ax2.set_ylabel('Field Strength (cos(2t))')
+ax2.grid(False)
+ax2.legend()
+# Add 'b' text underneath the second plot
+ax2.text(0.5, -0.1, 'b', transform=ax2.transAxes, fontsize=14, va='top', ha='center')
+
+# Show the plots side by side
+plt.tight_layout(rect=[0, 0, 1, 0.96])  # Adjust layout to make room for subtitle
+plt.show()
+
+
+
+# Define parameters
+a = 0.5  # constant electric field parameter
+b = 1.0  # RF field amplitude
+t = 0  # specific time for nullclines
+
+# Define the functions f(x, v) = 0 and g(x, v) = 0
+def f(x, v):
+    return v  # f(x, v) = v = 0 (x-nullcline)
+
+def g(x, v):
+    return (b * np.cos(2 * t) - a) * x  # g(x, v) = (b * cos(2t) - a) * x = 0 (v-nullcline)
+
+# Generate values of x and v for plotting
+x_vals = np.linspace(-2, 2, 400)
+v_vals = np.linspace(-2, 2, 400)
+
+# Calculate the f(x, v) = 0 nullcline (v = 0)
+x_nullcline = np.zeros_like(x_vals)
+
+# Calculate the g(x, v) = 0 nullcline (for different x and v)
+cos_term = np.cos(2 * t)
+g_nullcline = (b * cos_term - a) * x_vals
+
+# Define a function to find the intersection points
+def intersection_system(z):
+    x, v = z
+    return [f(x, v), g(x, v)]
+
+# Solve for the intersection points
+initial_guess = [0, 0]  # Initial guess for intersection point
+intersection = fsolve(intersection_system, initial_guess)
+
+# Plot the nullclines
+plt.figure(figsize=(8, 6))
+
+# Plot x-nullcline: f(x, v) = 0 (v = 0)
+plt.plot(x_vals, x_nullcline, label='f(x, v) = 0 (x-nullcline)', color='blue')
+
+# Plot v-nullcline: g(x, v) = 0
+plt.plot(x_vals, g_nullcline, label='g(x, v) = 0 (v-nullcline)', color='red')
+
+# Mark the intersection point
+plt.plot(intersection[0], intersection[1], 'ko', markersize=10, label=f'Intersection at {intersection}')
+
+# Add labels and title
+plt.title('Nullclines of f(x, v) = 0 and g(x, v) = 0 with Intersection')
+plt.xlabel('x (Position)')
+plt.ylabel('v (Velocity)')
+plt.grid(False)
+plt.legend()
+
+plt.show()
+
+# Display the intersection point
+print(f"Intersection point: x = {intersection[0]}, v = {intersection[1]}")
